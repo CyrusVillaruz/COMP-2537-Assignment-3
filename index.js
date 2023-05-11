@@ -1,7 +1,42 @@
 const PAGE_SIZE = 10;
 let currentPage = 1;
 let pokemons = [];
+let pokemonTypes = ["normal", "fighting", "flying", "poison", "ground", "rock", "bug", "ghost", "steel", "fire", "water", "grass", "electric", "psychic", "ice", "dragon", "dark", "fairy"];
 let numPageButtons = 5;
+
+const getPokeTypes = () => {
+  const typeFilters = document.getElementsByClassName("typeFilter");
+  const selectedTypes = Array.from(typeFilters)
+    .filter((typeFilter) => typeFilter.checked)
+    .map((typeFilter) => typeFilter.value);
+  return selectedTypes;
+};
+
+const filterPokemonTypes = async (pokemons, selectedTypes) => {
+  if (selectedTypes.length === 0) return pokemons;
+
+  const pokeArray = pokemons.map((pokemon) => pokemon.name);
+  const pokeAPIReq = pokeArray.map((pokeName) => axios.get(`https://pokeapi.co/api/v2/pokemon/${pokeName}`));
+
+  try {
+    const pokeResponses = await Promise.all(pokeAPIReq);
+    const pokeInfo = pokeResponses.map((res) => ({
+      name: res.data.name,
+      types: res.data.types.map((type) => type.type.name),
+      url: res.config.url
+    }));
+
+    const filteredPokeInfo = pokeInfo.filter((poke) => {
+      selectedTypes.every((type) => poke.types.includes(type));
+    });
+
+    console.log("Array" + pokeArray)
+    console.log("Array Filtered" + filteredPokeInfo)
+    return filteredPokeInfo;
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 const updatePaginationDiv = (currentPage, numPages) => {
   $("#pagination").empty();
@@ -72,6 +107,8 @@ const paginate = async (currentPage, PAGE_SIZE, pokemons) => {
 };
 
 const setup = async () => {
+  $("body").on("change", ".typeFilter", getPokeTypes);
+
   $("#pokeCards").empty();
   let response = await axios.get(
     "https://pokeapi.co/api/v2/pokemon?offset=0&limit=810"
