@@ -14,7 +14,7 @@ const updatePaginationDiv = (currentPage, numPages) => {
 
   if (currentPage > 1) {
     $("#pagination").append(`
-    <button class="btn btn-primary page ml-1 prev pageBtn" value="${currentPage - 1}">Previous</button>
+    <button class="btn btn-info page ml-1 prev pageBtn" value="${currentPage - 1}">Previous</button>
     `);
   }
 
@@ -23,7 +23,7 @@ const updatePaginationDiv = (currentPage, numPages) => {
     if (i == currentPage) active = "active";
     if (active === "active") {
       $("#pagination").append(`
-      <button class="btn btn-primary page ml-1 numberedButtons ${active}" value="${i}">${i}</button>
+      <button class="btn btn-info page ml-1 numberedButtons ${active}" value="${i}">${i}</button>
       `);
       continue;
     }
@@ -34,7 +34,7 @@ const updatePaginationDiv = (currentPage, numPages) => {
 
   if (currentPage < numPages) {
     $("#pagination").append(`
-    <button class="btn btn-primary page ml-1 next pageBtn" value="1">Next</button>
+    <button class="btn btn-info page ml-1 next pageBtn" value="1">Next</button>
     `);
   }
 };
@@ -63,7 +63,7 @@ const paginate = async (currentPage, PAGE_SIZE, pokemons) => {
       <div class="pokeCard card" pokeName=${res.data.name}   >
         <h3>${res.data.name.toUpperCase()}</h3> 
         <img src="${res.data.sprites.front_default}" alt="${res.data.name}"/>
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#pokeModal">
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#pokeModal">
           More
         </button>
       </div>  
