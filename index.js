@@ -3,6 +3,7 @@ let currentPage = 1;
 let pokemons = [];
 let pokemonTypes = ["normal", "fighting", "flying", "poison", "ground", "rock", "bug", "ghost", "steel", "fire", "water", "grass", "electric", "psychic", "ice", "dragon", "dark", "fairy"];
 let numPageButtons = 5;
+let displayedPokemons = [];
 
 const getPokeTypes = () => {
   const typeFilters = document.getElementsByClassName("typeFilter");
@@ -26,16 +27,33 @@ const filterPokemonTypes = async (pokemons, selectedTypes) => {
       url: res.config.url
     }));
 
-    const filteredPokeInfo = pokeInfo.filter((poke) => {
-      selectedTypes.every((type) => poke.types.includes(type));
-    });
-
-    console.log("Array" + pokeArray)
-    console.log("Array Filtered" + filteredPokeInfo)
+    const filteredPokeInfo = pokeInfo.filter((poke) =>
+      selectedTypes.every((type) => poke.types.includes(type))
+    );
+    console.log("poke info", pokeInfo)
+    console.log(filteredPokeInfo)
     return filteredPokeInfo;
   } catch (error) {
     console.error(error);
   }
+}
+
+const updateFilteredPokemon = async () => {
+  const selectedTypes = getPokeTypes();
+  const filteredPokemon = await filterPokemonTypes(pokemons, selectedTypes);
+  const numPages = Math.ceil(filteredPokemon.length / PAGE_SIZE);
+
+  displayedPokemons = filteredPokemon;
+    
+  paginate(currentPage, PAGE_SIZE, filteredPokemon);
+  updatePaginationDiv(currentPage, numPages);
+  displayNumberOfPokemon(pokemons, currentPage);
+}
+
+const displayNumberOfPokemon = (pokemons, currentPage) => {
+  let totalNumberOfPokemon = pokemons.length;
+
+  $("#pokeCardsHeader").html = `Displaying ${currentPage * PAGE_SIZE} of ${totalNumberOfPokemon} Pokemon`
 }
 
 const updatePaginationDiv = (currentPage, numPages) => {
@@ -69,7 +87,7 @@ const updatePaginationDiv = (currentPage, numPages) => {
 
   if (currentPage < numPages) {
     $("#pagination").append(`
-    <button class="btn btn-info page ml-1 next pageBtn" value="1">Next</button>
+    <button id="next" class="btn btn-info page ml-1 next pageBtn" value="1">Next</button>
     `);
   }
 };
@@ -95,7 +113,7 @@ const paginate = async (currentPage, PAGE_SIZE, pokemons) => {
   const pokemonData = await Promise.all(pokemonPromises);
   pokemonData.forEach((res) => {
     $("#pokeCards").append(`
-      <div class="pokeCard card" pokeName=${res.data.name}   >
+      <div class="pokeCard card" pokeName=${res.data.name}>
         <h3>${res.data.name.toUpperCase()}</h3> 
         <img src="${res.data.sprites.front_default}" alt="${res.data.name}"/>
         <button type="button" class="btn btn-info" data-toggle="modal" data-target="#pokeModal">
@@ -107,13 +125,14 @@ const paginate = async (currentPage, PAGE_SIZE, pokemons) => {
 };
 
 const setup = async () => {
-  $("body").on("change", ".typeFilter", getPokeTypes);
+  $("body").on("change", ".typeFilter", updateFilteredPokemon);
 
   $("#pokeCards").empty();
   let response = await axios.get(
     "https://pokeapi.co/api/v2/pokemon?offset=0&limit=810"
   );
   pokemons = response.data.results;
+  displayedPokemons = pokemons;
 
   paginate(currentPage, PAGE_SIZE, pokemons);
   const numPages = Math.ceil(pokemons.length / PAGE_SIZE);
@@ -164,24 +183,25 @@ const setup = async () => {
 
   $("body").on("click", ".numberedButtons", async function (e) {
     currentPage = Number(e.target.value);
-    paginate(currentPage, PAGE_SIZE, pokemons);
-
-    updatePaginationDiv(currentPage, numPages);
+    handlePagination();
   });
 
-  $("#pagination").on("click", ".prev", async function (e) {
+  $("body").on("click", ".prev", async function (e) {
     currentPage--;
     handlePagination();
   });
   
-  $("#pagination").on("click", ".next", async function (e) {
+  $("body").on("click", "#next", async function (e) {
     currentPage++;
     handlePagination();
   });
   
   function handlePagination() {
-    paginate(currentPage, PAGE_SIZE, pokemons);
+    updateFilteredPokemon()
+    const numPages = Math.ceil(displayedPokemons.length / PAGE_SIZE);
+    paginate(currentPage, PAGE_SIZE, displayedPokemons);
     updatePaginationDiv(currentPage, numPages);
+    displayNumberOfPokemon(displayedPokemons, currentPage);
   }
 };
 
