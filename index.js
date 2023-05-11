@@ -1,28 +1,51 @@
 const PAGE_SIZE = 10;
 let currentPage = 1;
 let pokemons = [];
+let numPageButtons = 5;
 
 const updatePaginationDiv = (currentPage, numPages) => {
   $("#pagination").empty();
 
-  const startPage = 1;
-  const endPage = numPages;
+  const startPage = Math.max(1, currentPage - Math.floor(numPageButtons / 2));
+  const endPage = Math.min(
+    numPages,
+    currentPage + Math.floor(numPageButtons / 2)
+  );
   for (let i = startPage; i <= endPage; i++) {
+    var active = "";
+    if (i == currentPage) active = "active";
+    if (active === "active") {
+      $("#pagination").append(`
+      <button class="btn btn-primary page ml-1 numberedButtons ${active}" value="${i}">${i}</button>
+      `);
+      continue;
+    }
     $("#pagination").append(`
-    <button class="btn btn-primary page ml-1 numberedButtons" value="${i}">${i}</button>
+    <button class="btn btn-secondary page ml-1 numberedButtons ${active}" value="${i}">${i}</button>
     `);
   }
 };
 
 const paginate = async (currentPage, PAGE_SIZE, pokemons) => {
-  selected_pokemons = pokemons.slice(
+  const selected_pokemons = pokemons.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   );
 
   $("#pokeCards").empty();
-  selected_pokemons.forEach(async (pokemon) => {
-    const res = await axios.get(pokemon.url);
+
+  // An array of promises that will be resolved with the data for each selected pokemon.
+  const pokemonPromises = selected_pokemons.map((pokemon) =>
+    axios.get(pokemon.url)
+  );
+
+  /* 
+  Wait for all promises to be resolved with the data for each pokemon.
+  This is to prevent pokemon cards from being displayed randomly when
+  the page is refreshed.
+  */
+  const pokemonData = await Promise.all(pokemonPromises);
+  pokemonData.forEach((res) => {
     $("#pokeCards").append(`
       <div class="pokeCard card" pokeName=${res.data.name}   >
         <h3>${res.data.name.toUpperCase()}</h3> 
@@ -30,8 +53,8 @@ const paginate = async (currentPage, PAGE_SIZE, pokemons) => {
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#pokeModal">
           More
         </button>
-        </div>  
-        `);
+      </div>  
+    `);
   });
 };
 
