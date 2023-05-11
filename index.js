@@ -11,6 +11,13 @@ const updatePaginationDiv = (currentPage, numPages) => {
     numPages,
     currentPage + Math.floor(numPageButtons / 2)
   );
+
+  if (currentPage > 1) {
+    $("#pagination").append(`
+    <button class="btn btn-primary page ml-1 prev pageBtn" value="${currentPage - 1}">Previous</button>
+    `);
+  }
+
   for (let i = startPage; i <= endPage; i++) {
     var active = "";
     if (i == currentPage) active = "active";
@@ -22,6 +29,12 @@ const updatePaginationDiv = (currentPage, numPages) => {
     }
     $("#pagination").append(`
     <button class="btn btn-secondary page ml-1 numberedButtons ${active}" value="${i}">${i}</button>
+    `);
+  }
+
+  if (currentPage < numPages) {
+    $("#pagination").append(`
+    <button class="btn btn-primary page ml-1 next pageBtn" value="1">Next</button>
     `);
   }
 };
@@ -118,6 +131,21 @@ const setup = async () => {
 
     updatePaginationDiv(currentPage, numPages);
   });
+
+  $("#pagination").on("click", ".prev", async function (e) {
+    currentPage--;
+    handlePagination();
+  });
+  
+  $("#pagination").on("click", ".next", async function (e) {
+    currentPage++;
+    handlePagination();
+  });
+  
+  function handlePagination() {
+    paginate(currentPage, PAGE_SIZE, pokemons);
+    updatePaginationDiv(currentPage, numPages);
+  }
 };
 
 $(document).ready(setup);
