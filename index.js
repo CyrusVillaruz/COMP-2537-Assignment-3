@@ -45,7 +45,7 @@ const updateFilteredPokemon = async () => {
 
   displayedPokemons = filteredPokemon;
     
-  paginate(currentPage, PAGE_SIZE, filteredPokemon);
+  paginate(currentPage, PAGE_SIZE, displayedPokemons);
   updatePaginationDiv(currentPage, numPages);
   displayNumberOfPokemon(pokemons, currentPage);
 }
@@ -134,7 +134,7 @@ const setup = async () => {
   pokemons = response.data.results;
   displayedPokemons = pokemons;
 
-  paginate(currentPage, PAGE_SIZE, pokemons);
+  paginate(currentPage, PAGE_SIZE, displayedPokemons);
   const numPages = Math.ceil(pokemons.length / PAGE_SIZE);
   updatePaginationDiv(currentPage, numPages);
 
@@ -197,7 +197,6 @@ const setup = async () => {
   });
   
   function handlePagination() {
-    updateFilteredPokemon()
     const numPages = Math.ceil(displayedPokemons.length / PAGE_SIZE);
     paginate(currentPage, PAGE_SIZE, displayedPokemons);
     updatePaginationDiv(currentPage, numPages);
