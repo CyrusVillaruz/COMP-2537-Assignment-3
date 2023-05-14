@@ -30,8 +30,6 @@ const filterPokemonTypes = async (pokemons, selectedTypes) => {
     const filteredPokeInfo = pokeInfo.filter((poke) =>
       selectedTypes.every((type) => poke.types.includes(type))
     );
-    console.log("poke info", pokeInfo)
-    console.log(filteredPokeInfo)
     return filteredPokeInfo;
   } catch (error) {
     console.error(error);
@@ -50,10 +48,28 @@ const updateFilteredPokemon = async () => {
   displayNumberOfPokemon(pokemons, currentPage);
 }
 
-const displayNumberOfPokemon = (pokemons, currentPage) => {
-  let totalNumberOfPokemon = pokemons.length;
-  $("#pokeCardsHeader").html(`<h1>Displaying ${currentPage * PAGE_SIZE} of ${totalNumberOfPokemon} Pokemon</h1>`);
-}
+const displayNumberOfPokemon = (pokelist, currentPage) => {
+  let totalNumberOfPokemon = pokelist.length;
+  let numOfPages = Math.ceil(totalNumberOfPokemon / PAGE_SIZE);
+  let displayedPokemon = 0;
+  let pageSize = 0;
+
+  if (totalNumberOfPokemon === 0) {
+    displayedPokemon = 0;
+    $("#pokeCardsHeader").html(`<h1>Displaying ${displayedPokemon} of ${totalNumberOfPokemon} Pokemon</h1>`);
+    return;
+  }
+
+  if (currentPage != numOfPages) {
+    pageSize = PAGE_SIZE;
+    displayedPokemon = pageSize;
+  } else if (currentPage == numOfPages) {
+    pageSize = totalNumberOfPokemon % PAGE_SIZE;
+    displayedPokemon = pageSize;
+  }
+  
+  $("#pokeCardsHeader").html(`<h1>Displaying ${displayedPokemon} of ${totalNumberOfPokemon} Pokemon</h1>`);
+};
 
 const updatePaginationDiv = (currentPage, numPages) => {
   $("#pagination").empty();
@@ -121,6 +137,8 @@ const paginate = async (currentPage, PAGE_SIZE, pokemons) => {
       </div>  
     `);
   });
+
+  displayNumberOfPokemon(pokemons, currentPage);
 };
 
 const setup = async () => {
