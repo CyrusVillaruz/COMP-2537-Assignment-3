@@ -42,7 +42,8 @@ const updateFilteredPokemon = async () => {
   const numPages = Math.ceil(filteredPokemon.length / PAGE_SIZE);
 
   displayedPokemons = filteredPokemon;
-    
+  currentPage = 1;
+  
   paginate(currentPage, PAGE_SIZE, displayedPokemons);
   updatePaginationDiv(currentPage, numPages);
   displayNumberOfPokemon(pokemons, currentPage);
@@ -65,7 +66,7 @@ const displayNumberOfPokemon = (pokelist, currentPage) => {
     displayedPokemon = pageSize;
   } else if (currentPage == numOfPages) {
     pageSize = totalNumberOfPokemon % PAGE_SIZE;
-    displayedPokemon = pageSize;
+    displayedPokemon = pageSize === 0 ? PAGE_SIZE : pageSize;
   }
   
   $("#pokeCardsHeader").html(`<h1>Displaying ${displayedPokemon} of ${totalNumberOfPokemon} Pokemon</h1>`);
