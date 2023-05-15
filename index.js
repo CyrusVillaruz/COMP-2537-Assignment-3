@@ -1,7 +1,6 @@
 const PAGE_SIZE = 10;
 let currentPage = 1;
 let pokemons = [];
-let pokemonTypes = ["normal", "fighting", "flying", "poison", "ground", "rock", "bug", "ghost", "steel", "fire", "water", "grass", "electric", "psychic", "ice", "dragon", "dark", "fairy"];
 let numPageButtons = 5;
 let displayedPokemons = [];
 
